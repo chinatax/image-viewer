@@ -395,7 +395,7 @@ export default function Browser() {
                   </button>
                 )}
                 <p className="browser-line">
-                  {t("browsers.youAreUsing", { name: browserName(), mode: modeLabel })}
+                  {t("browsers.youAreUsing", { name: t(browserName()), mode: modeLabel })}
                 </p>
                 {/* iOS 上没给「选择文件夹」，得说清楚图库为什么不叫文件夹 */}
                 {caps.ios ? <p className="hint-line">{t("ios.libraryHint")}</p> : null}

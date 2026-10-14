@@ -3,9 +3,11 @@
 //   Tier 2  <input webkitdirectory>  一次选中整棵子树，用 webkitRelativePath 重建目录树
 //   Tier 3  <input multiple>         平铺文件列表（iPhone 相册、安卓 Firefox 141 等无路径场景）
 //
-// 本模块刻意不 import i18n —— 它要能在 Node 里被单独跑测试（buildTree 是纯函数）。
+// 本模块刻意不 import i18n 的运行时 —— 它要能在 Node 里被单独跑测试（buildTree 是纯函数）。
+// 下面的 MsgKey 是 type-only import，编译时被整个擦掉，不会把读 window 的 i18n 拖进来。
 
 import { byName, classify, isVirtualDir, type DirListing, type FSEntry, type FileLike, type VirtualDir } from "./fs";
+import type { MsgKey } from "./i18n";
 
 // 安卓上选文件夹在 Chromium M132 之前会崩掉浏览器（递归扫描没实现，M132 才修）。
 // 低于此版本连按钮都不发，只给"选择照片/视频"。判定偏保守：错了只会少一个按钮。
@@ -107,23 +109,25 @@ export function modeFor(caps: Caps): Mode {
 }
 
 // 只用于首页那行"你当前使用的是 …"，纯展示，不参与任何逻辑分支。
-export function browserName(): string {
+// 返回文案 key 而不是成品的字符串：浏览器名里有国产套壳和「未知」，
+// 拼死在代码里会让英文站出现中英混排（调用方 t(browserName()) 即可）。
+export function browserName(): MsgKey {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
   // 顺序有讲究：国产套壳的 UA 里同时带着 Chrome/ Safari/，必须先判它们。
-  if (/MicroMessenger/i.test(ua)) return "微信内置浏览器";
-  if (/QQBrowser/i.test(ua)) return "QQ浏览器";
-  if (/UCBrowser|UBrowser/i.test(ua)) return "UC浏览器";
-  if (/Quark/i.test(ua)) return "夸克";
-  if (/HuaweiBrowser|HarmonyOS/i.test(ua)) return "华为浏览器";
-  if (/EdgiOS/i.test(ua)) return "Edge (iOS)";
-  if (/CriOS/i.test(ua)) return "Chrome (iOS)";
-  if (/FxiOS/i.test(ua)) return "Firefox (iOS)";
-  if (/Edg\//i.test(ua)) return "Edge";
-  if (/OPR\//i.test(ua)) return "Opera";
-  if (/Firefox\//i.test(ua)) return "Firefox";
-  if (/Safari\//i.test(ua) && /Version\//i.test(ua)) return "Safari";
-  if (/Chrome\//i.test(ua)) return "Chrome";
-  return "未知浏览器";
+  if (/MicroMessenger/i.test(ua)) return "browsers.name.wechat";
+  if (/QQBrowser/i.test(ua)) return "browsers.name.qq";
+  if (/UCBrowser|UBrowser/i.test(ua)) return "browsers.name.uc";
+  if (/Quark/i.test(ua)) return "browsers.name.quark";
+  if (/HuaweiBrowser|HarmonyOS/i.test(ua)) return "browsers.name.huawei";
+  if (/EdgiOS/i.test(ua)) return "browsers.name.edgeIos";
+  if (/CriOS/i.test(ua)) return "browsers.name.chromeIos";
+  if (/FxiOS/i.test(ua)) return "browsers.name.firefoxIos";
+  if (/Edg\//i.test(ua)) return "browsers.name.edge";
+  if (/OPR\//i.test(ua)) return "browsers.name.opera";
+  if (/Firefox\//i.test(ua)) return "browsers.name.firefox";
+  if (/Safari\//i.test(ua) && /Version\//i.test(ua)) return "browsers.name.safari";
+  if (/Chrome\//i.test(ua)) return "browsers.name.chrome";
+  return "browsers.name.unknown";
 }
 
 // ---------- 取文件 ----------
