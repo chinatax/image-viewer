@@ -1,0 +1,5 @@
+node_modules
+dist
+
+# ffmpeg.wasm core：构建时从 node_modules 拷贝，不入库（30MB）
+/public/ffmpeg/

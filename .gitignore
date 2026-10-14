@@ -1,0 +1,18 @@
+# 依赖
+web/node_modules/
+
+# 构建产物
+web/dist/
+server/dist/
+server/imageviewer
+
+# ffmpeg.wasm core：构建时从 node_modules 拷贝，30MB 不入库（见 build.sh）
+web/public/ffmpeg/
+
+# 本机私有配置（含 SSH 口令等，绝不入库）
+.claude/
+
+# 杂项
+.DS_Store
+*.log
+*.swp
