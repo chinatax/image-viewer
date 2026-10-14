@@ -14,6 +14,17 @@ import (
 //go:embed dist
 var webDist embed.FS
 
+// 英文站落地正文的静态副本（见 enPage）。单独放一个文件是为了当 HTML 编辑，
+// 也方便跟 web/src/i18n.ts 的 en 字典逐字比对。
+//
+//go:embed landing_en.html
+var landingENRaw string
+
+// 注入前先剥掉文件开头的维护说明（HTML 注释）：那段是写给改这个文件的人看的，
+// 没理由跟着发到页面上 —— 英文页里混一段中文注释，对看源码的人是噪音，
+// 对某些粗暴解析的抓取器还可能被当正文。
+var landingEN = reHTMLComment.ReplaceAllString(landingENRaw, "")
+
 // 英文站（--en）的公开地址与元信息。
 //
 // 为什么放在服务端而不是前端：爬虫第一波读到的是**不执行 JS 的原始 HTML**，
@@ -33,8 +44,9 @@ const (
 )
 
 var (
-	reTitle = regexp.MustCompile(`(?is)<title>.*?</title>`)
-	reLang  = regexp.MustCompile(`(?i)<html[^>]*\blang="[^"]*"`)
+	reTitle       = regexp.MustCompile(`(?is)<title>.*?</title>`)
+	reLang        = regexp.MustCompile(`(?i)<html[^>]*\blang="[^"]*"`)
+	reHTMLComment = regexp.MustCompile(`(?s)<!--.*?-->`)
 )
 
 // 结构化数据（schema.org WebApplication）。只写真实能力，不吹。
@@ -94,9 +106,16 @@ var enHead = func() string {
 }()
 
 // 把通用的 index.html 改写成英文站的版本。
+//
+// 除了 <head>，正文也要静态化一份：不执行 JS 的爬虫拿到的原始 HTML 里
+// <div id="root"> 本来是空的（整页正文全靠 React 渲染），首页对 Googlebot 的
+// 第一波来说一个字都没有，标题描述再好也搜不到。这里把 landing_en.html 塞进
+// #root，爬虫不用跑 JS 就能读到正文；React 挂载时会清空 #root 的子节点再渲染，
+// 所以不会出现重复内容。内容与 i18n.ts 的对应关系见该文件开头的说明。
 func enPage(index []byte) []byte {
 	page := reLang.ReplaceAll(index, []byte(`<html lang="en"`))
 	page = reTitle.ReplaceAll(page, []byte("<title>"+html.EscapeString(siteTitle)+"</title>"))
+	page = bytes.Replace(page, []byte(`<div id="root"></div>`), []byte(`<div id="root">`+landingEN+`</div>`), 1)
 	return bytes.Replace(page, []byte("</head>"), []byte(enHead+"</head>"), 1)
 }
 

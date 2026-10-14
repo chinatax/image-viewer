@@ -1,0 +1,98 @@
+<!--
+  英文站落地正文的静态副本，由 embed.go 在 --en 下注入进 <div id="root">。
+
+  为什么需要它：不执行 JS 的爬虫（Googlebot 的第一波）拿到的原始 HTML 里，
+  <div id="root"> 是空的 —— 整页正文原本全靠 React 渲染，于是首页对爬虫来说
+  没有任何可索引的文字，标题描述再好也一样搜不到。注入这份副本后，爬虫不用跑 JS
+  就能读到正文；React 挂载时会清空 #root 的子节点再渲染，所以不会出现重复内容，
+  用户最终还是看到原组件。
+
+  ⚠️ 内容必须与 web/src/i18n.ts 里 en 的 landing.* / browsers.* 逐字一致，两处一起改。
+  设备相关的行（"You're using …"、iOS / 安卓提示条）刻意不在这里 —— 那些由 UA 决定，
+  静态副本给不出，只能留给 React。
+
+  里面的 <button> 是空壳，React 挂载前点不动；但这页面本来就非 JS 不可，没有额外损失，
+  留着是为了让挂载前后的版式一致，避免闪一下。
+-->
+<div class="center landing-wrap">
+  <div class="landing">
+    <div class="notice">
+      <h1>Browse photos and videos from any folder on your computer</h1>
+      <p>No upload, no install — open the page, pick a folder, and start looking.</p>
+      <button class="btn primary">Choose folder</button>
+    </div>
+
+    <section class="seo-block">
+      <h2>How it works</h2>
+      <ol>
+        <li>Click Choose folder and pick any folder on your computer — photos, videos, or both.</li>
+        <li>Subfolders appear in the sidebar, and what's inside them shows up as thumbnails.</li>
+        <li>Double-click a thumbnail to view it full screen, play a video, or start a slideshow.</li>
+      </ol>
+    </section>
+
+    <section class="seo-block">
+      <h2>Browser support</h2>
+      <dl class="faq">
+        <div>
+          <dt>Full mode (recommended)</dt>
+          <dd>Reads folders directly and remembers the permission, so you don't have to pick again next time: Chrome, Edge, Opera and Brave on desktop (all Chromium-based), and Chrome for Android 132 or newer.</dd>
+        </div>
+        <div>
+          <dt>Compatibility mode</dt>
+          <dd>Still browses by folder and still never uploads anything, but the browser can't remember the permission, so you pick the folder again each visit: Firefox, Safari, iPhone (iOS 18.4 or newer), most Android browsers and in-app browsers.</dd>
+        </div>
+      </dl>
+      <p>The page picks whichever mode your browser supports — there's nothing to switch manually.</p>
+    </section>
+
+    <section class="seo-block">
+      <h2>Nothing is uploaded — it all happens in your browser</h2>
+      <p>This is a local viewer, not an online one. Your files are read directly by the browser through the File System Access API: no upload, no server, no account, no ads. Your photos and videos never leave your computer, and browsing keeps working offline once the page has loaded.</p>
+    </section>
+
+    <section class="seo-block">
+      <h2>Opens formats Chrome can't handle by itself</h2>
+      <p>Photos: JPG, PNG, GIF, WebP, BMP, SVG, AVIF, plus any other format your browser can decode.</p>
+      <p>Video: MP4, WebM and MOV play as they are; MKV, AVI, WMV, MPG, TS, M2TS and FLV are repackaged in the browser (lossless) or decoded with ffmpeg.wasm. When Chrome has no decoder for a codec at all, you get a 480p preview of the first few seconds instead of a file that refuses to open. The originals on disk are never modified and never uploaded.</p>
+    </section>
+
+    <section class="seo-block">
+      <h2>Frequently asked questions</h2>
+      <dl class="faq">
+        <div>
+          <dt>Do I have to upload my photos?</dt>
+          <dd>No. There is no upload button and no server that stores your files — everything is read locally by your own browser.</dd>
+        </div>
+        <div>
+          <dt>Is it free? Do I need an account?</dt>
+          <dd>It's free, with no sign-up and nothing to install. Open the page and pick a folder.</dd>
+        </div>
+        <div>
+          <dt>Which browsers does it work in?</dt>
+          <dd>It depends on the browser. Chrome, Edge and other Chromium browsers on desktop run in full mode: they read folders directly and remember the permission. Firefox, Safari, iPhone and most Android browsers fall back to compatibility mode, which still browses by folder but asks you to pick it again each visit. The page picks the mode itself — there's nothing to switch.</dd>
+        </div>
+        <div>
+          <dt>Can it play MKV files in Chrome?</dt>
+          <dd>Yes — that's the main reason it exists. Chrome can't open MKV, AVI, WMV or TS on its own, so the file is repackaged or decoded inside the browser and handed to a standard video player.</dd>
+        </div>
+        <div>
+          <dt>Does it work offline?</dt>
+          <dd>After the page has loaded, yes — reading your files needs no network. The one thing it downloads is a ~31 MB decoder, fetched the first time a video needs transcoding and then reused from the browser cache.</dd>
+        </div>
+        <div>
+          <dt>Is there a file size limit?</dt>
+          <dd>No — since nothing is uploaded, the only limit is your own disk. Very large videos get a preview first rather than making you wait minutes for a full transcode.</dd>
+        </div>
+        <div>
+          <dt>On Android, why can't I pick the root of internal storage?</dt>
+          <dd>Because Android forbids it — it has nothing to do with this page. Since Android 11, no app (browsers included) may be granted the root of internal storage, the root of an SD card, or the Download folder itself; the system shows "Can't use this folder" and every browser behaves the same. So on Android you browse one folder at a time — open a subfolder such as DCIM or Pictures. On desktop (Chrome, Edge) there is no such restriction.</dd>
+        </div>
+        <div>
+          <dt>On iPad or iPhone, why can I only pick photos, not a folder?</dt>
+          <dd>Because the Photos library is not a folder in the Files app — iOS never exposes it to web pages as a directory, and every browser behaves the same way, so a folder picker can't reach the photos and videos in your library. Directory picking did reach the web in iOS 18.4, but it only covers what's inside the Files app, and most people's photos live in the library; an extra button that leads nowhere is worse than none, so iOS gets a single entry point. Tapping it offers Photo Library / Take Photo or Video / Choose File: multi-select from the library, or Choose File for media in the Files app, iCloud Drive or a USB drive. Either way it arrives as a flat list, since the system provides no folder structure — to browse by folder, use Chrome, Edge or Firefox on a computer.</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+</div>
