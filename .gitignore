@@ -12,6 +12,9 @@ web/public/ffmpeg/
 # 本机私有配置（含 SSH 口令等，绝不入库）
 .claude/
 
+# 服务端真实配置：token 是访问口令，只入库模板，真实配置各机器自己 cp 一份
+server/config.json
+
 # 杂项
 .DS_Store
 *.log

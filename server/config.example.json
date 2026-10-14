@@ -1,0 +1,5 @@
+{
+  "listen": ":8080",
+  "token": "REPLACE_WITH_YOUR_OWN_RANDOM_TOKEN",
+  "root": "/"
+}

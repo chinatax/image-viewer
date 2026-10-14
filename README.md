@@ -39,8 +39,13 @@ python3 -m http.server 8000
 ./build.sh
 rm -rf server/dist && cp -r web/dist server/dist   # server/dist 是 go:embed 的输入
 cd server && go build -o imageviewer .
+cp config.example.json config.json   # 首次运行才要；config.json 不入库（token 是口令）
 ./imageviewer --en        # 加 --en = 英文界面；不加 = 中文
 ```
+
+`server/config.json` 由 `config.example.json` 拷来，三个字段：`listen` 监听地址、
+`token` 访问口令（留空则不要认证）、`root` 暴露的顶层目录。文件缺失会直接启动失败，
+所以新克隆的仓库第一次跑之前记得拷一份。
 
 纯静态托管（`python3 -m http.server` 之类）没有地方传参数，只能是中文。若要在静态
 托管下出英文，往 `index.html` 的 `</head>` 前加一行就行：
